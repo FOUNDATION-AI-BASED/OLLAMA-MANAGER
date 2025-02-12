@@ -99,7 +99,7 @@ Or just use this:
 git clone https://github.com/FOUNDATION-AI-BASED/OLLAMA-MANAGER.git && cd ollama-manager && pip install -r requirements.txt
 
 Then run this command: sudo python3 app.py and if you are asked to enter your a password then enter your device password, it only asks for that because the tool needs previlidge to install ollama where it belongs to!
-
+</div>
 If you see this your done and you can access the webui!:
  * Serving Flask app 'app' (lazy loading)
  * Environment: production
