@@ -132,7 +132,7 @@ This uninstalls everything that was installed by the webui except ollama that is
 
 WINDOWS: https://github.com/ollama/ollama/blob/main/docs/windows.md#uninstall
 
-LINUX(UBUNTU 22 TESTED no others tested at the moment from our side!): https://github.com/ollama/ollama/blob/main/docs/linux.md#uninstall
+LINUX (UBUNTU 22 TESTED no others tested at the moment from our side!): https://github.com/ollama/ollama/blob/main/docs/linux.md#uninstall
 
 MACOS: just stop ollama in the webui and delete the ollama app in the application folder!
 
