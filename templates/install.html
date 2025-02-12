@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Install Ollama Versions</h1>
+<form action="{{ url_for('update_version_list_route') }}" method="post">
+    <button type="submit" class="btn btn-secondary">Update Version List</button>
+</form>
+
+<h2>Available Versions</h2>
+<ul class="list-group">
+    {% for version, links in versions.items() %}
+    <li class="list-group-item">
+        <strong>{{ version }}</strong>
+        <form action="{{ url_for('install_version') }}" method="post" style="display:inline;">
+            <input type="hidden" name="version" value="{{ version }}">
+            <button type="submit" class="btn btn-success btn-sm">Install</button>
+        </form>
+        <div class="progress mt-2" style="display: none;">
+            <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+
+<script>
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault(); // Prevent the default form submission
+
+            const progressBar = form.nextElementSibling.querySelector('.progress-bar');
+            progressBar.parentElement.style.display = 'block';
+
+            const formData = new FormData(form);
+            const version = formData.get('version');
+
+            // Start the installation process
+            fetch(`/install_version`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json',
+                },
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      // Poll for progress updates
+                      const interval = setInterval(() => {
+                          fetch(`/get_progress`)
+                              .then(response => response.json())
+                              .then(data => {
+                                  if (data.progress) {
+                                      progressBar.style.width = `${data.progress}%`;
+                                  }
+                                  if (data.status === "success" || data.status === "failed") {
+                                      clearInterval(interval);
+                                      if (data.status === "success") {
+                                          setTimeout(() => {
+                                              window.location.reload(); // Reload the page to show the flash message
+                                          }, 1000);
+                                      } else {
+                                          alert('Installation failed.');
+                                      }
+                                  }
+                              });
+                      }, 1000); // Poll every second
+                  } else {
+                      progressBar.style.width = '0%';
+                      alert('Installation failed.');
+                  }
+              });
+        });
+    });
+</script>
+{% endblock %}
