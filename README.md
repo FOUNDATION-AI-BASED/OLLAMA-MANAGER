@@ -104,21 +104,7 @@ Then run this command: sudo python3 app.py and if you are asked to enter your a 
 
 If you see this your done and you can access the webui!:
 
- * Serving Flask app 'app' (lazy loading)
-   
- * Environment: production
-   
-   WARNING: This is a development server. Do not use it in a production deployment.
-   
-   Use a production WSGI server instead.
-   
- * Debug mode: off
-   
- * Running on all addresses.
-   
-   WARNING: This is a development server. Do not use it in a production deployment.
-  
- * Running on http://192.168.51.47:5000/ (Press CTRL+C to quit)
+ <img src="https://raw.githubusercontent.com/FOUNDATION-AI-BASED/OLLAMA-MANAGER/refs/heads/main/terminal.webp" alt="Alt text" width="800">
 
 You can access the webui by using either http://localhost:5000 or http://127.0.0.1:5000 or on a different device: http://192.168.51.47:5000
 
