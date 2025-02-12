@@ -1,6 +1,8 @@
 Clone Repo!
 
-git clone 
+git clone https://github.com/FOUNDATION-AI-BASED/OLLAMA-MANAGER.git
+
+go into the cloned repository!
 
 cd ollama-manager
 
