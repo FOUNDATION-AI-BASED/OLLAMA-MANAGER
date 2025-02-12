@@ -113,7 +113,6 @@ If you see this your done and you can access the webui!:
 You can access the webui by using either http://localhost:5000 or http://127.0.0.1:5000 or on a different device: http://192.168.51.47:5000
 
 If you get an error open a new issue imeadiatly!
-</div>
 
 ******************************************************************************************************************
 STOP THE WEBUI:
