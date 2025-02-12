@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Settings</h1>
+<form action="{{ url_for('settings') }}" method="post">
+    <div class="form-group">
+        <label for="ollama_max_loaded_models">OLLAMA_MAX_LOADED_MODELS:</label>
+        <input type="text" id="ollama_max_loaded_models" name="ollama_max_loaded_models" value="{{ session.get('ollama_max_loaded_models', '') }}" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="ollama_num_parallel">OLLAMA_NUM_PARALLEL:</label>
+        <input type="text" id="ollama_num_parallel" name="ollama_num_parallel" value="{{ session.get('ollama_num_parallel', '') }}" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="ollama_max_queue">OLLAMA_MAX_QUEUE:</label>
+        <input type="text" id="ollama_max_queue" name="ollama_max_queue" value="{{ session.get('ollama_max_queue', '') }}" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="ollama_flash_attention">OLLAMA_FLASH_ATTENTION:</label>
+        <select id="ollama_flash_attention" name="ollama_flash_attention" class="form-control">
+            <option value="enabled" {% if session.get('ollama_flash_attention') == 'enabled' %}selected{% endif %}>Enabled</option>
+            <option value="disabled" {% if session.get('ollama_flash_attention') == 'disabled' %}selected{% endif %}>Disabled</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="ollama_kv_cache_type">OLLAMA_KV_CACHE_TYPE:</label>
+        <select id="ollama_kv_cache_type" name="ollama_kv_cache_type" class="form-control">
+            <option value="f16" {% if session.get('ollama_kv_cache_type') == 'f16' %}selected{% endif %}>f16</option>
+            <option value="q8_0" {% if session.get('ollama_kv_cache_type') == 'q8_0' %}selected{% endif %}>q8_0</option>
+            <option value="q4_0" {% if session.get('ollama_kv_cache_type') == 'q4_0' %}selected{% endif %}>q4_0</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="ollama_origins">OLLAMA_ORIGINS:</label>
+        <input type="text" id="ollama_origins" name="ollama_origins" value="{{ session.get('ollama_origins', '') }}" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary">Save Settings</button>
+</form>
+{% endblock %}
