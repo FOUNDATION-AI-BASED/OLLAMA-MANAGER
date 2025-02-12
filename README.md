@@ -114,3 +114,23 @@ You can access the webui by using either http://localhost:5000 or http://127.0.0
 
 If you get an error open a new issue imeadiatly!
 </div>
+
+******************************************************************************************************************
+STOP THE WEBUI:
+
+To stop the Webui simply go back to the terminal and click ctrl and c on your keyboard!
+
+******************************************************************************************************************
+UNINSTALL THE WEBUI:
+
+LINUX | MACOS
+
+⚠️ For MACOS click first stop ollama if you plan to uninstall the webui!
+
+simply run: pip unistall -r requirements.txt && cd .. && sudo rm -rf ollama-manager
+
+This uninstalls everything that was installed by the webui except ollama that isn't uninstalled for that please follow this guide!:
+
+WINDOWS: https://github.com/ollama/ollama/blob/main/docs/windows.md#uninstall
+LINUX(UBUNTU 22 TESTED no others tested at the moment from our side!): https://github.com/ollama/ollama/blob/main/docs/linux.md#uninstall
+MACOS: just stop ollama in the webui and delete the ollama app in the application folder!
