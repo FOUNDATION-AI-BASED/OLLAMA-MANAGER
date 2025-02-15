@@ -1,0 +1,61 @@
+body {
+    background-color: #e3f2fd;
+    color: #ffffff;
+}
+.navbar {
+    background-color: #1976d2 !important;
+}
+.footer {
+    background-color: #1976d2 !important;
+}
+.card {
+    background-color: #bbdefb;
+    color: #0d47a1;
+}
+.list-group-item {
+    background-color: #bbdefb;
+    color: #0d47a1;
+}
+.custom-model-inst-color {
+    color: white; /* Installed Models List Color */
+}
+.custom-badge-color {
+    background-color: gold;  /* Architecture Pills */
+    color: gold;
+}
+p {
+    color: black;
+}
+.custom-badge {
+    background-color: blue !important; /* Example of a custom orange color */
+    color: white !important; /* White text for better contrast */
+}
+.custom-button-color {
+    background-color: blue !important; /* Install Button Color */
+    color: white !important;
+}
+.badge {
+    margin: 0 2px;
+    padding: 5px 8px;
+    display: inline-block;
+    color: #e3f2fd;
+    background-color: white;
+    border-color: white;
+}
+.mb-0 a {
+    color: blue; /* Change this to your desired color */
+    text-decoration: none; /* Optional: Remove underline */
+}
+h2 {
+    color: black;
+}
+.mb-0 a:hover {
+    color: white; /* Change this to your desired hover color */
+    text-decoration: underline; /* Optional: Add underline on hover */
+}
+label {
+    color: black;
+}
+h1 {
+    color: black;
+}
