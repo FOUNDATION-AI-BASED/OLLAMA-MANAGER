@@ -46,13 +46,13 @@ def before_request():
     if 'theme' not in session:
         session['theme'] = config.get('theme', 'light')
     if 'ollama_auto_start' not in session:
-        session['ollama_auto_start'] = config.get('ollama_auto_start', True)
+        session['ollama_auto_start'] = config.get('ollama_auto_start', False)
     if 'ollama_keep_running' not in session:
-        session['ollama_keep_running'] = config.get('ollama_keep_running', True)
+        session['ollama_keep_running'] = config.get('ollama_keep_running', False)
 
 # Function to start Ollama
 def start_ollama_service():
-    if config.get('ollama_auto_start', True):  # Use config instead of session
+    if config.get('ollama_auto_start', False):  # Changed default to False
         host = "localhost"
         port = "11434"
         model_dir = "~/.ollama/models"
@@ -65,7 +65,7 @@ start_ollama_service()
 
 # Function to stop Ollama when the WebUI stops
 def stop_ollama_service():
-    if not config.get('ollama_keep_running', True):  # Use config instead of session
+    if not config.get('ollama_keep_running', False):  # Changed default to False
         os.system("pkill ollama")
         print("Ollama service stopped.")
 
@@ -490,14 +490,14 @@ def set_theme():
 
 @app.route("/toggle_auto_start", methods=["POST"])
 def toggle_auto_start():
-    session['ollama_auto_start'] = not session.get('ollama_auto_start', True)
+    session['ollama_auto_start'] = not session.get('ollama_auto_start', False)
     config['ollama_auto_start'] = session['ollama_auto_start']
     save_config(config)
     return jsonify({"success": True, "ollama_auto_start": session['ollama_auto_start']})
 
 @app.route("/toggle_keep_running", methods=["POST"])
 def toggle_keep_running():
-    session['ollama_keep_running'] = not session.get('ollama_keep_running', True)
+    session['ollama_keep_running'] = not session.get('ollama_keep_running', False)
     config['ollama_keep_running'] = session['ollama_keep_running']
     save_config(config)
     return jsonify({"success": True, "ollama_keep_running": session['ollama_keep_running']})
