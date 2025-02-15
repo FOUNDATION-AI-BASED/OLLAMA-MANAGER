@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Model Manager</h1>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h3 class="card-title mb-0">Pull New Model</h3>
+    </div>
+    <div class="card-body">
+        <form id="pullModelForm" action="{{ url_for('pull_model') }}" method="post">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" id="model_name" name="model_name" placeholder="Enter model name (e.g., llama2)">
+                <button class="btn btn-primary" type="submit">Pull Model</button>
+            </div>
+        </form>
+        <div id="pullProgress" class="progress mt-3" style="display: none;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                 role="progressbar" 
+                 style="width: 0%" 
+                 aria-valuenow="0" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100">
+                <span class="progress-text">0%</span>
+            </div>
+        </div>
+        <div id="pullStatus" class="alert mt-3" style="display: none;"></div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Installed Models</h3>
+        <button id="refreshModels" class="btn btn-secondary btn-sm">Refresh List</button>
+    </div>
+    <div class="card-body">
+        <div class="list-group" id="installedModels">
+            {% for model in installed_models %}
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                {{ model }}
+                <form action="{{ url_for('delete_model') }}" method="post" class="d-inline">
+                    <input type="hidden" name="model_name" value="{{ model }}">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                </form>
+            </div>
+            {% else %}
+            <p class="text-muted">No models installed</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('refreshModels').addEventListener('click', function() {
+    window.location.reload();
+});
+
+document.getElementById('pullModelForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const modelName = document.getElementById('model_name').value;
+    const progressBar = document.getElementById('pullProgress');
+    const progressBarInner = progressBar.querySelector('.progress-bar');
+    const progressText = progressBar.querySelector('.progress-text');
+    const statusDiv = document.getElementById('pullStatus');
+    
+    // Reset progress bar and status message
+    progressBar.style.display = 'block';
+    progressBarInner.style.width = '0%';
+    progressBarInner.setAttribute('aria-valuenow', 0);
+    progressText.textContent = '0%';
+    statusDiv.style.display = 'none';
+    
+    // Start the model pull process
+    fetch(this.action, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `model_name=${encodeURIComponent(modelName)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Start polling for progress updates
+            const checkProgress = setInterval(() => {
+                fetch(`/get_model_progress/${modelName}`)
+                    .then(response => response.json())
+                    .then(progressData => {
+                        const progress = progressData.progress || 0;
+                        const status = progressData.status || 'unknown';
+
+                        // Update progress bar
+                        progressBarInner.style.width = `${progress}%`;
+                        progressBarInner.setAttribute('aria-valuenow', progress);
+                        progressText.textContent = `${progress}%`;
+
+                        // Handle completion or failure
+                        if (status === 'completed') {
+                            clearInterval(checkProgress);
+                            statusDiv.className = 'alert alert-success mt-3';
+                            statusDiv.textContent = `Model ${modelName} downloaded and installed successfully!`;
+                            statusDiv.style.display = 'block';
+                            setTimeout(() => {
+                                window.location.reload(); // Refresh the page to show the new model
+                            }, 2000);
+                        } else if (status === 'failed') {
+                            clearInterval(checkProgress);
+                            statusDiv.className = 'alert alert-danger mt-3';
+                            statusDiv.textContent = 'Failed to pull model. Please check the logs.';
+                            statusDiv.style.display = 'block';
+                        }
+                    })
+                    .catch(error => {
+                        clearInterval(checkProgress);
+                        statusDiv.className = 'alert alert-danger mt-3';
+                        statusDiv.textContent = 'Error checking progress. Please try again.';
+                        statusDiv.style.display = 'block';
+                    });
+            }, 1000); // Poll every second
+        } else {
+            // Handle failure to start the pull process
+            statusDiv.className = 'alert alert-danger mt-3';
+            statusDiv.textContent = data.error || 'Failed to start model pull.';
+            statusDiv.style.display = 'block';
+        }
+    })
+    .catch(error => {
+        statusDiv.className = 'alert alert-danger mt-3';
+        statusDiv.textContent = 'Error starting model pull. Please try again.';
+        statusDiv.style.display = 'block';
+    });
+});
+</script>
+{% endblock %}
