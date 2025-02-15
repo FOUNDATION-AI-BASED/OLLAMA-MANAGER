@@ -1,2 +1,4 @@
 Flask==2.0.1
 requests==2.32.3
+python-magic==0.4.24
+psutil==5.9.7
