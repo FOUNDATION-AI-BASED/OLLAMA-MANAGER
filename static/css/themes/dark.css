@@ -1,0 +1,33 @@
+body {
+    background-color: #121212;
+    color: #ffffff;
+}
+.navbar {
+    background-color: #1f1f1f !important;
+}
+.footer {
+    background-color: #1f1f1f !important;
+}
+.card {
+    background-color: #1f1f1f;
+    color: #ffffff;
+}
+.list-group-item {
+    background-color: #1f1f1f;
+    color: #ffffff;
+}
+.badge {
+    margin: 0 2px;
+    padding: 5px 8px;
+    display: inline-block;
+    color: black;
+    background-color: white;
+}
+.custom-button-color {
+    background-color: white !important; /* Install Button Color */
+    color: black !important;
+}
+.custom-save-button-color {
+    background-color: white !important; /* Install Button Color */
+    color: black !important;
+}
