@@ -1,73 +1,161 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Install Ollama Versions</h1>
-<form action="{{ url_for('update_version_list_route') }}" method="post">
-    <button type="submit" class="btn btn-secondary">Update Version List</button>
-</form>
+<h1>Ollama Version Installer</h1>
 
-<h2>Available Versions</h2>
-<ul class="list-group">
-    {% for version, links in versions.items() %}
-    <li class="list-group-item">
-        <strong>{{ version }}</strong>
-        <form action="{{ url_for('install_version') }}" method="post" style="display:inline;">
-            <input type="hidden" name="version" value="{{ version }}">
-            <button type="submit" class="btn btn-success btn-sm">Install</button>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Available Versions</h3>
+        <form id="updateVersionForm" action="{{ url_for('update_version_list_route') }}" method="post">
+            <button type="submit" class="btn btn-secondary">Update Version List</button>
         </form>
-        <div class="progress mt-2" style="display: none;">
-            <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+    <div class="card-body">
+        <div class="list-group">
+            {% for version, data in versions.items() %}
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ version }}</strong>
+                        <div class="mt-1">
+                            {% for arch in data.architectures %}
+                            <span class="badge custom-badge me-1">{{ arch }}</span>
+                            {% endfor %}
+                        </div>
+                        {% if data.notes %}
+                        <small class="text-muted">{{ data.notes }}</small>
+                        {% endif %}
+                    </div>
+                    <form class="install-form d-inline">
+                        <input type="hidden" name="version" value="{{ version }}">
+                        <button type="submit" class="btn custom-button-color btn-success btn-sm">Install</button>
+                    </form>
+                </div>
+                <div class="installation-status mt-2" style="display: none;">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" 
+                             style="width: 0%" 
+                             aria-valuenow="0" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            <span class="progress-text">0%</span>
+                        </div>
+                    </div>
+                    <div class="status-message alert mt-2" style="display: none;"></div>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-muted">No versions available. Try updating the version list.</p>
+            {% endfor %}
         </div>
-    </li>
-    {% endfor %}
-</ul>
+    </div>
+</div>
 
 <script>
-    document.querySelectorAll('form').forEach(form => {
-        form.addEventListener('submit', (e) => {
-            e.preventDefault(); // Prevent the default form submission
+// Handle version list updates
+document.getElementById('updateVersionForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const button = this.querySelector('button');
+    button.disabled = true;
+    button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
+    
+    fetch(this.action, {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert('Failed to update version list. Please try again.');
+            button.disabled = false;
+            button.textContent = 'Update Version List';
+        }
+    })
+    .catch(error => {
+        alert('Error updating version list. Please try again.');
+        button.disabled = false;
+        button.textContent = 'Update Version List';
+    });
+});
 
-            const progressBar = form.nextElementSibling.querySelector('.progress-bar');
-            progressBar.parentElement.style.display = 'block';
-
-            const formData = new FormData(form);
-            const version = formData.get('version');
-
-            // Start the installation process
-            fetch(`/install_version`, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'Accept': 'application/json',
-                },
-            }).then(response => response.json())
-              .then(data => {
-                  if (data.success) {
-                      // Poll for progress updates
-                      const interval = setInterval(() => {
-                          fetch(`/get_progress`)
-                              .then(response => response.json())
-                              .then(data => {
-                                  if (data.progress) {
-                                      progressBar.style.width = `${data.progress}%`;
-                                  }
-                                  if (data.status === "success" || data.status === "failed") {
-                                      clearInterval(interval);
-                                      if (data.status === "success") {
-                                          setTimeout(() => {
-                                              window.location.reload(); // Reload the page to show the flash message
-                                          }, 1000);
-                                      } else {
-                                          alert('Installation failed.');
-                                      }
-                                  }
-                              });
-                      }, 1000); // Poll every second
-                  } else {
-                      progressBar.style.width = '0%';
-                      alert('Installation failed.');
-                  }
-              });
+// Handle installation for each version
+document.querySelectorAll('.install-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const version = this.querySelector('input[name="version"]').value;
+        const listItem = this.closest('.list-group-item');
+        const installButton = this.querySelector('button');
+        const statusSection = listItem.querySelector('.installation-status');
+        const progressBar = statusSection.querySelector('.progress-bar');
+        const progressText = statusSection.querySelector('.progress-text');
+        const statusMessage = statusSection.querySelector('.status-message');
+        
+        // Reset and show status section
+        statusSection.style.display = 'block';
+        statusMessage.style.display = 'none';
+        progressBar.style.width = '0%';
+        progressBar.setAttribute('aria-valuenow', 0);
+        progressText.textContent = '0%';
+        installButton.disabled = true;
+        
+        // Start installation
+        fetch("{{ url_for('install_version') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `version=${encodeURIComponent(version)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                throw new Error(data.error || 'Installation failed to start');
+            }
+            
+            // Poll for progress
+            const checkProgress = setInterval(() => {
+                fetch("{{ url_for('get_progress') }}")
+                    .then(response => response.json())
+                    .then(progressData => {
+                        const currentProgress = progressData.progress;
+                        progressBar.style.width = `${currentProgress}%`;
+                        progressBar.setAttribute('aria-valuenow', currentProgress);
+                        progressText.textContent = `${currentProgress}%`;
+                        
+                        if (progressData.status === 'success') {
+                            clearInterval(checkProgress);
+                            statusMessage.className = 'alert alert-success mt-2';
+                            statusMessage.textContent = 'Installation completed successfully!';
+                            statusMessage.style.display = 'block';
+                            setTimeout(() => {
+                                window.location.href = "{{ url_for('home') }}";
+                            }, 2000);
+                        } else if (progressData.status === 'failed') {
+                            clearInterval(checkProgress);
+                            statusMessage.className = 'alert alert-danger mt-2';
+                            statusMessage.textContent = 'Installation failed. Please try again.';
+                            statusMessage.style.display = 'block';
+                            installButton.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        clearInterval(checkProgress);
+                        statusMessage.className = 'alert alert-danger mt-2';
+                        statusMessage.textContent = 'Error checking installation progress';
+                        statusMessage.style.display = 'block';
+                        installButton.disabled = false;
+                    });
+            }, 1000);
+        })
+        .catch(error => {
+            statusMessage.className = 'alert alert-danger mt-2';
+            statusMessage.textContent = error.message || 'Error starting installation';
+            statusMessage.style.display = 'block';
+            installButton.disabled = false;
         });
     });
+});
 </script>
 {% endblock %}
