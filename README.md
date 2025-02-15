@@ -44,7 +44,7 @@
 - [ ] MACOS SEQUOIA
 - [ ] WINDOWS 10
 - [ ] WINDOWS 11
-- [ ] UBUNTU 20
+- ✅ UBUNTU 20
 - ✅ UBUNTU 22
 - ✅ UBUNTU 24
 - [ ] DEBIAN 12
