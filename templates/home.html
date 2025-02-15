@@ -15,9 +15,9 @@
 {% endif %}
 
 <!-- Info Box -->
-{% if not ollama_installed or not redirect_to_install %}
+{% if "Warning: could not connect to a running Ollama instance" in installed_version %}
     <div class="alert alert-info" role="alert">
-        If you see this message, it means that Ollama is stopped. Please start Ollama using the "Start" button below!
+        If you see this message: {{ installed_version }}, it means that Ollama is stopped. Please start Ollama using the "Start" button below!
     </div>
 {% endif %}
 
@@ -41,4 +41,60 @@
 <form action="{{ url_for('stop_ollama') }}" method="post">
     <button type="submit" class="btn btn-danger">Stop</button>
 </form>
+
+<h2>Auto-Start Ollama</h2>
+<button id="toggleAutoStart" class="btn btn-{% if session.get('ollama_auto_start') %}success{% else %}warning{% endif %}">
+    Auto-Start: {% if session.get('ollama_auto_start') %}Enabled{% else %}Disabled{% endif %}
+</button>
+<p id="autoStartStatus" class="mt-2">Status: {% if session.get('ollama_auto_start') %}Ollama will auto-start when the WebUI starts.{% else %}Ollama will not auto-start when the WebUI starts.{% endif %}</p>
+
+<h2>Keep Ollama Running</h2>
+<button id="toggleKeepRunning" class="btn btn-{% if session.get('ollama_keep_running') %}success{% else %}warning{% endif %}">
+    Keep Running: {% if session.get('ollama_keep_running') %}Enabled{% else %}Disabled{% endif %}
+</button>
+<p id="keepRunningStatus" class="mt-2">Status: {% if session.get('ollama_keep_running') %}Ollama will keep running when the WebUI is stopped.{% else %}Ollama will stop when the WebUI is stopped.{% endif %}</p>
+
+<script>
+    document.getElementById('toggleAutoStart').addEventListener('click', function(e) {
+        e.preventDefault();
+        fetch("{{ url_for('toggle_auto_start') }}", {
+            method: 'POST'
+        }).then(response => response.json()).then(data => {
+            if (data.success) {
+                const button = document.getElementById('toggleAutoStart');
+                const status = document.getElementById('autoStartStatus');
+                if (data.ollama_auto_start) {
+                    button.className = 'btn btn-success';
+                    button.textContent = 'Auto-Start: Enabled';
+                    status.textContent = 'Status: Ollama will auto-start when the WebUI starts.';
+                } else {
+                    button.className = 'btn btn-warning';
+                    button.textContent = 'Auto-Start: Disabled';
+                    status.textContent = 'Status: Ollama will not auto-start when the WebUI starts.';
+                }
+            }
+        });
+    });
+
+    document.getElementById('toggleKeepRunning').addEventListener('click', function(e) {
+        e.preventDefault();
+        fetch("{{ url_for('toggle_keep_running') }}", {
+            method: 'POST'
+        }).then(response => response.json()).then(data => {
+            if (data.success) {
+                const button = document.getElementById('toggleKeepRunning');
+                const status = document.getElementById('keepRunningStatus');
+                if (data.ollama_keep_running) {
+                    button.className = 'btn btn-success';
+                    button.textContent = 'Keep Running: Enabled';
+                    status.textContent = 'Status: Ollama will keep running when the WebUI is stopped.';
+                } else {
+                    button.className = 'btn btn-warning';
+                    button.textContent = 'Keep Running: Disabled';
+                    status.textContent = 'Status: Ollama will stop when the WebUI is stopped.';
+                }
+            }
+        });
+    });
+</script>
 {% endblock %}
