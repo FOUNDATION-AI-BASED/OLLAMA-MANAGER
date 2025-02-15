@@ -1,0 +1,95 @@
+(Ignore this, this is optional!) First check if you have python installed and other tools you need!
+python3 --version
+pip --version
+git --version
+
+outputs should be like this:
+
+git version 2.45.2
+
+The version can differ!
+
+The installation coommands combined (Recomended)!
+
+sudo apt install python3-venv git
+
+git clone https://github.com/FOUNDATION-AI-BASED/OLLAMA-MANAGER.git && cd ollama-manager && chmod +x l-m-start.sh && chmod +x l-m-stop.sh && source ./l-m-start.sh
+
+Then run: python app.py!
+
+
+To stop: ctrl c or shutdown button in the Webui! 
+
+And then: source ./l-m-stop.sh
+
+---------------------------------------------------------------------------------------
+
+(Not Recomended) 
+
+First install things that are needed!
+
+sudo apt install python3-venv git
+
+Then clone repo!
+
+git clone https://github.com/FOUNDATION-AI-BASED/OLLAMA-MANAGER.git
+
+Then go into the downloaded folder!
+
+cd ollama-manager
+
+That doesn't matter in most cases because we are using venv a virtual python enviroment!
+
+sudo apt install python3-venv
+
+python3 -m venv venv
+
+source venv/bin/activate
+
+pip install flask requests python-magic 
+
+And now run the tool!
+
+python3 app.py
+
+You can stop the Webui from either the Webui with the shutdown button or with ctrl c in the terminal window!
+
+And then run this to close the enviroment!
+
+deactivate
+
+Exit the Webui directory!
+
+cd ..
+
+---------------------------------------------------------------------------------------
+
+To reactivate the enviroment run this command:
+
+source venv/bin/activate
+
+---------------------------------------------------------------------------------------
+
+To start the tool again! (Only if it was already installed ones!)
+
+Go into the directory back!
+
+cd ollama-manager
+
+Then start the python enviroment!
+
+source venv/bin/activate
+
+Now you can start the Webui!
+
+python3 app.py
+
+You can stop the Webui from either the Webui with the shutdown button or with ctrl c in the terminal window!
+
+And then run this to close the enviroment!
+
+deactivate
+
+Exit the Webui directory!
+
+cd ..
