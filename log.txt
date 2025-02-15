@@ -17,3 +17,5 @@ Ollama keep running button to keep ollama runnign after webui is stopped!
 Ollama keep running button not working as expected same as auto start!
 V1.9.1
 All issues have been resolved!
+Stop Functionality issue discovered on Alma Linux Linux Mint!
+Shutdown isn't working correctly on those os systems too!
