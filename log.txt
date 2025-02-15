@@ -1,0 +1,19 @@
+V1.3:
+Minor fixes and enhancments!
+V1.4:
+macos-universal tag now showing in the ollama version installer!
+V1.5
+Ollama Model Pull after successfull pulling now showing 100%!
+V1.6
+Test shows success in fixing installation of ollama versions!
+V1.7
+Ubuntu 22.4 tested everything is tested except the settings menu!
+V1.8
+Functionality untested added themeing and auto start ollama when webui starts!
+V1.9
+We discovered a issue that the ollama autostart button doesn't work!
+Extedned shutdown prcess!
+Ollama keep running button to keep ollama runnign after webui is stopped!
+Ollama keep running button not working as expected same as auto start!
+V1.9.1
+All issues have been resolved!
