@@ -30,7 +30,7 @@ def load_config():
     if os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, "r") as f:
             return json.load(f)
-    return {"theme": "light", "ollama_auto_start": True, "ollama_keep_running": True}
+    return {"theme": "light", "ollama_auto_start": False, "ollama_keep_running": False}
 
 # Save configuration
 def save_config(config):
@@ -481,7 +481,7 @@ def model_manager():
 @app.route("/set_theme", methods=["POST"])
 def set_theme():
     theme = request.form.get("theme")
-    if theme in ["light", "dark", "blue"]:
+    if theme in ["light", "dark", "blue", "rainbow"]:
         session['theme'] = theme
         config['theme'] = theme
         save_config(config)
