@@ -46,7 +46,7 @@
 - [ ] WINDOWS 11
 - [ ] UBUNTU 20
 - ✅ UBUNTU 22
-- [ ] UBUNTU 24
+- ✅ UBUNTU 24
 - [ ] DEBIAN 12
 - [ ] LINUX MINT
 - [ ] Alma Linux 9.5
