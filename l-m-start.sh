@@ -25,4 +25,4 @@ else
     echo "Virtual environment created and packages installed successfully."
 fi
 
-echo "Virtual environment is now active. Use 'deactivate_env.sh' to deactivate."
+echo "Virtual environment is now active. Use 'l-m-stop.sh' to deactivate."
