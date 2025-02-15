@@ -35,7 +35,7 @@
     <div class="card-body">
         <div class="list-group" id="installedModels">
             {% for model in installed_models %}
-            <div class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="list-group-item d-flex custom-model-inst-color justify-content-between align-items-center">
                 {{ model }}
                 <form action="{{ url_for('delete_model') }}" method="post" class="d-inline">
                     <input type="hidden" name="model_name" value="{{ model }}">
