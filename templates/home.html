@@ -1,161 +1,100 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Ollama Version Installer</h1>
+<h1>Home</h1>
+<p>OS: {{ os_type }}</p>
+<p>Ollama Installed: {{ ollama_installed }}</p>
+<p>Installed Version: {{ installed_version }}</p>
 
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h3 class="card-title mb-0">Available Versions</h3>
-        <form id="updateVersionForm" action="{{ url_for('update_version_list_route') }}" method="post">
-            <button type="submit" class="btn btn-secondary">Update Version List</button>
-        </form>
+{% if redirect_to_install %}
+    <script>
+        setTimeout(function() {
+            window.location.href = "{{ url_for('install') }}";
+        }, 10000);  // Redirect to install page after 10 seconds
+    </script>
+    <p>Ollama is not installed. Redirecting to the install page in 10 seconds...</p>
+{% endif %}
+
+<!-- Info Box -->
+{% if "Warning: could not connect to a running Ollama instance" in installed_version %}
+    <div class="alert alert-info" role="alert">
+        If you see this message: {{ installed_version }}, it means that Ollama is stopped. Please start Ollama using the "Start" button below!
     </div>
-    <div class="card-body">
-        <div class="list-group">
-            {% for version, data in versions.items() %}
-            <div class="list-group-item">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>{{ version }}</strong>
-                        <div class="mt-1">
-                            {% for arch in data.architectures %}
-                            <span class="badge bg-info me-1">{{ arch }}</span>
-                            {% endfor %}
-                        </div>
-                        {% if data.notes %}
-                        <small class="text-muted">{{ data.notes }}</small>
-                        {% endif %}
-                    </div>
-                    <form class="install-form d-inline">
-                        <input type="hidden" name="version" value="{{ version }}">
-                        <button type="submit" class="btn btn-success btn-sm">Install</button>
-                    </form>
-                </div>
-                <div class="installation-status mt-2" style="display: none;">
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
-                             role="progressbar" 
-                             style="width: 0%" 
-                             aria-valuenow="0" 
-                             aria-valuemin="0" 
-                             aria-valuemax="100">
-                            <span class="progress-text">0%</span>
-                        </div>
-                    </div>
-                    <div class="status-message alert mt-2" style="display: none;"></div>
-                </div>
-            </div>
-            {% else %}
-            <p class="text-muted">No versions available. Try updating the version list.</p>
-            {% endfor %}
-        </div>
+{% endif %}
+
+<h2>Start Ollama Service</h2>
+<form action="{{ url_for('start_ollama') }}" method="post">
+    <div class="form-group">
+        <label for="host">Host:</label>
+        <input type="text" id="host" name="host" value="localhost" class="form-control">
     </div>
-</div>
+    <div class="form-group">
+        <label for="port">Port:</label>
+        <input type="text" id="port" name="port" value="11434" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="model_dir">Model Directory:</label>
+        <input type="text" id="model_dir" name="model_dir" value="~/.ollama/models" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary">Start</button>
+</form>
+
+<form action="{{ url_for('stop_ollama') }}" method="post">
+    <button type="submit" class="btn btn-danger">Stop</button>
+</form>
+
+<h2>Auto-Start Ollama</h2>
+<button id="toggleAutoStart" class="btn btn-{% if session.get('ollama_auto_start') %}success{% else %}warning{% endif %}">
+    Auto-Start: {% if session.get('ollama_auto_start') %}Enabled{% else %}Disabled{% endif %}
+</button>
+<p id="autoStartStatus" class="mt-2">Status: {% if session.get('ollama_auto_start') %}Ollama will auto-start when the WebUI starts.{% else %}Ollama will not auto-start when the WebUI starts.{% endif %}</p>
+
+<h2>Keep Ollama Running</h2>
+<button id="toggleKeepRunning" class="btn btn-{% if session.get('ollama_keep_running') %}success{% else %}warning{% endif %}">
+    Keep Running: {% if session.get('ollama_keep_running') %}Enabled{% else %}Disabled{% endif %}
+</button>
+<p id="keepRunningStatus" class="mt-2">Status: {% if session.get('ollama_keep_running') %}Ollama will keep running when the WebUI is stopped.{% else %}Ollama will stop when the WebUI is stopped.{% endif %}</p>
 
 <script>
-// Handle version list updates
-document.getElementById('updateVersionForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const button = this.querySelector('button');
-    button.disabled = true;
-    button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
-    
-    fetch(this.action, {
-        method: 'POST'
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            window.location.reload();
-        } else {
-            alert('Failed to update version list. Please try again.');
-            button.disabled = false;
-            button.textContent = 'Update Version List';
-        }
-    })
-    .catch(error => {
-        alert('Error updating version list. Please try again.');
-        button.disabled = false;
-        button.textContent = 'Update Version List';
-    });
-});
-
-// Handle installation for each version
-document.querySelectorAll('.install-form').forEach(form => {
-    form.addEventListener('submit', function(e) {
+    document.getElementById('toggleAutoStart').addEventListener('click', function(e) {
         e.preventDefault();
-        
-        const version = this.querySelector('input[name="version"]').value;
-        const listItem = this.closest('.list-group-item');
-        const installButton = this.querySelector('button');
-        const statusSection = listItem.querySelector('.installation-status');
-        const progressBar = statusSection.querySelector('.progress-bar');
-        const progressText = statusSection.querySelector('.progress-text');
-        const statusMessage = statusSection.querySelector('.status-message');
-        
-        // Reset and show status section
-        statusSection.style.display = 'block';
-        statusMessage.style.display = 'none';
-        progressBar.style.width = '0%';
-        progressBar.setAttribute('aria-valuenow', 0);
-        progressText.textContent = '0%';
-        installButton.disabled = true;
-        
-        // Start installation
-        fetch("{{ url_for('install_version') }}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `version=${encodeURIComponent(version)}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (!data.success) {
-                throw new Error(data.error || 'Installation failed to start');
+        fetch("{{ url_for('toggle_auto_start') }}", {
+            method: 'POST'
+        }).then(response => response.json()).then(data => {
+            if (data.success) {
+                const button = document.getElementById('toggleAutoStart');
+                const status = document.getElementById('autoStartStatus');
+                if (data.ollama_auto_start) {
+                    button.className = 'btn btn-success';
+                    button.textContent = 'Auto-Start: Enabled';
+                    status.textContent = 'Status: Ollama will auto-start when the WebUI starts.';
+                } else {
+                    button.className = 'btn btn-warning';
+                    button.textContent = 'Auto-Start: Disabled';
+                    status.textContent = 'Status: Ollama will not auto-start when the WebUI starts.';
+                }
             }
-            
-            // Poll for progress
-            const checkProgress = setInterval(() => {
-                fetch("{{ url_for('get_progress') }}")
-                    .then(response => response.json())
-                    .then(progressData => {
-                        const currentProgress = progressData.progress;
-                        progressBar.style.width = `${currentProgress}%`;
-                        progressBar.setAttribute('aria-valuenow', currentProgress);
-                        progressText.textContent = `${currentProgress}%`;
-                        
-                        if (progressData.status === 'success') {
-                            clearInterval(checkProgress);
-                            statusMessage.className = 'alert alert-success mt-2';
-                            statusMessage.textContent = 'Installation completed successfully!';
-                            statusMessage.style.display = 'block';
-                            setTimeout(() => {
-                                window.location.href = "{{ url_for('home') }}";
-                            }, 2000);
-                        } else if (progressData.status === 'failed') {
-                            clearInterval(checkProgress);
-                            statusMessage.className = 'alert alert-danger mt-2';
-                            statusMessage.textContent = 'Installation failed. Please try again.';
-                            statusMessage.style.display = 'block';
-                            installButton.disabled = false;
-                        }
-                    })
-                    .catch(error => {
-                        clearInterval(checkProgress);
-                        statusMessage.className = 'alert alert-danger mt-2';
-                        statusMessage.textContent = 'Error checking installation progress';
-                        statusMessage.style.display = 'block';
-                        installButton.disabled = false;
-                    });
-            }, 1000);
-        })
-        .catch(error => {
-            statusMessage.className = 'alert alert-danger mt-2';
-            statusMessage.textContent = error.message || 'Error starting installation';
-            statusMessage.style.display = 'block';
-            installButton.disabled = false;
         });
     });
-});
+
+    document.getElementById('toggleKeepRunning').addEventListener('click', function(e) {
+        e.preventDefault();
+        fetch("{{ url_for('toggle_keep_running') }}", {
+            method: 'POST'
+        }).then(response => response.json()).then(data => {
+            if (data.success) {
+                const button = document.getElementById('toggleKeepRunning');
+                const status = document.getElementById('keepRunningStatus');
+                if (data.ollama_keep_running) {
+                    button.className = 'btn btn-success';
+                    button.textContent = 'Keep Running: Enabled';
+                    status.textContent = 'Status: Ollama will keep running when the WebUI is stopped.';
+                } else {
+                    button.className = 'btn btn-warning';
+                    button.textContent = 'Keep Running: Disabled';
+                    status.textContent = 'Status: Ollama will stop when the WebUI is stopped.';
+                }
+            }
+        });
+    });
 </script>
 {% endblock %}
