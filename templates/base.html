@@ -1,49 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="{{ session.get('theme', 'light') }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OLLAMA MANAGER</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link id="theme-style" rel="stylesheet" href="{{ url_for('static', filename='css/themes/' + session.get('theme', 'light') + '.css') }}">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">OLLAMA MANAGER</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('home') }}">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('install') }}">Install</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('settings') }}">Settings</a>
-                </li>
-            </ul>
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">OLLAMA MANAGER</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('install') }}">Install</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('model_manager') }}">Model Manager</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('settings') }}">Settings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('shutdown') }}">Shutdown</a>
+                    </li>
+                </ul>
+                <form class="d-flex ms-auto" id="themeForm">
+                    <select class="form-select me-2" id="themeSelect" name="theme">
+                        <option value="light" {% if session.get('theme') == 'light' %}selected{% endif %}>Light</option>
+                        <option value="dark" {% if session.get('theme') == 'dark' %}selected{% endif %}>Dark</option>
+                        <option value="blue" {% if session.get('theme') == 'blue' %}selected{% endif %}>Blue</option>
+                    </select>
+                    <button type="submit" class="btn btn-outline-light">Apply Theme</button>
+                </form>
+            </div>
         </div>
     </nav>
-    <div class="container mt-4">
-        <!-- Flash messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        {% block content %}{% endblock %}
+
+    <div class="main-content flex-grow-1">
+        <div class="container mt-4 mb-5">
+            <!-- Flash messages -->
+            <div class="flash-messages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+            {% block content %}{% endblock %}
+        </div>
     </div>
-    <footer class="footer mt-4 py-3 bg-light">
+
+    <footer class="footer mt-auto py-3 bg-light">
         <div class="container">
-            <p>WebUI Version: 1.0</p>
-            <p>Contributors: <a href="https://github.com/dronerazzo" target="_blank">dronerazzo</a>, <a href="https://github.com/FOUNDATION-AI-BASED" target="_blank">PRODUCTIONAIBASED</a></p>
+            <p class="mb-0">WebUI Version: 1.9.2</p>
+            <p class="mb-0">Contributors: <a href="https://github.com/dronerazzo" target="_blank">dronerazzo</a>, <a href="https://github.com/FOUNDATION-AI-BASED" target="_blank">PRODUCTIONAIBASED</a></p>
         </div>
     </footer>
+
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script>
+        document.getElementById('themeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const theme = document.getElementById('themeSelect').value;
+            fetch("{{ url_for('set_theme') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `theme=${encodeURIComponent(theme)}`
+            }).then(response => response.json()).then(data => {
+                if (data.success) {
+                    window.location.reload();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
