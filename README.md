@@ -36,7 +36,7 @@
 
 
 
-## ✅ Systems tested on:
+## ✅ Systems tested on (V1.9.2) :
 
 - [ ] MACOS MONTEREY
 - [ ] MACOS SONOMA
