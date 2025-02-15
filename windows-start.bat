@@ -26,5 +26,5 @@ IF EXIST %VENV_NAME% (
     echo Virtual environment created and packages installed successfully.
 )
 
-echo Virtual environment is now active. Use 'deactivate_env.bat' to deactivate.
+echo Virtual environment is now active. Use 'windows-stop.bat' to deactivate.
 pause
