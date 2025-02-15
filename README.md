@@ -137,3 +137,9 @@ LINUX (UBUNTU 22 TESTED no others tested at the moment from our side!): https://
 MACOS: just stop ollama in the webui and delete the ollama app in the application folder!
 
 </div>
+
+******************************************************************************************************************
+
+!!! IMPORTANT !!!
+
+If you want to disable Keep Ollama Running otherwise you can't stop ollama!
