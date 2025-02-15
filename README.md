@@ -49,7 +49,7 @@
 - ✅ UBUNTU 24
 - [ ] DEBIAN 12
 - [ ] LINUX MINT
-- [ ] Alma Linux 9.5
+- ✅ Alma Linux 9.5 (localhost:5000 or 127.0.0.1:5000 only! On all Interfaces not supported therefore only on the device accessible!)
 ******************************************************************************************************************
 
 What is this tool?
