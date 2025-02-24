@@ -52,7 +52,7 @@ def before_request():
 
 # Function to start Ollama
 def start_ollama_service():
-    if config.get('ollama_auto_start', False):  # Changed default to False
+    if config.get('ollama_auto_start', False):
         host = "localhost"
         port = "11434"
         model_dir = "~/.ollama/models"
@@ -65,7 +65,7 @@ start_ollama_service()
 
 # Function to stop Ollama when the WebUI stops
 def stop_ollama_service():
-    if not config.get('ollama_keep_running', False):  # Changed default to False
+    if not config.get('ollama_keep_running', False):
         os.system("pkill ollama")
         print("Ollama service stopped.")
 
@@ -86,10 +86,8 @@ def get_supported_architectures(version_data):
     return sorted(architectures)
 
 def update_version_list():
+    temp_file = None
     try:
-        if os.path.exists(VERSION_FILE):
-            os.remove(VERSION_FILE)
-
         url = "https://raw.githubusercontent.com/FOUNDATION-AI-BASED/OLLAMA-VERSIONS/main/version.json"
         response = requests.get(url, timeout=10)
         if response.status_code == 200:
@@ -100,12 +98,24 @@ def update_version_list():
                     "architectures": get_supported_architectures(data),
                     **data
                 }
-            with open(VERSION_FILE, "w") as f:
+            
+            # Save to temporary file first
+            temp_file = VERSION_FILE + ".tmp"
+            with open(temp_file, "w") as f:
                 json.dump(enhanced_versions, f)
+            
+            # Atomically replace existing file
+            if os.path.exists(VERSION_FILE):
+                os.replace(temp_file, VERSION_FILE)
+            else:
+                os.rename(temp_file, VERSION_FILE)
             return True
         return False
     except Exception as e:
         print(f"Error updating version list: {e}")
+        # Clean up temporary file if it exists
+        if temp_file and os.path.exists(temp_file):
+            os.remove(temp_file)
         return False
 
 def get_file_type(file_path):
@@ -357,9 +367,17 @@ def home():
 @app.route("/install")
 def install():
     if not os.path.exists(VERSION_FILE):
-        update_version_list()
-    with open(VERSION_FILE, "r") as f:
-        versions = json.load(f)
+        success = update_version_list()
+        if not success:
+            flash("Failed to fetch the latest version list. Please check your internet connection.", "error")
+    
+    try:
+        with open(VERSION_FILE, "r") as f:
+            versions = json.load(f)
+    except FileNotFoundError:
+        versions = {}
+        flash("Version list unavailable. Please try updating again.", "error")
+    
     return render_template("install.html", versions=versions)
 
 @app.route("/update_version_list", methods=["POST"])
@@ -376,8 +394,14 @@ def install_version():
     version = request.form.get("version")
     os_type, architecture = detect_os()
 
-    with open(VERSION_FILE, "r") as f:
-        versions = json.load(f)
+    try:
+        with open(VERSION_FILE, "r") as f:
+            versions = json.load(f)
+    except FileNotFoundError:
+        return jsonify({
+            "success": False,
+            "error": "Version list not found. Please update the version list first."
+        })
 
     download_url = versions.get(version, {}).get(os_type, {}).get(architecture)
     if not download_url or download_url.lower() == "none":
