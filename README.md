@@ -40,7 +40,7 @@
 
 - [ ] MACOS MONTEREY
 - [ ] MACOS SONOMA
-- [ ] MACOS VENTURA
+- [~] MACOS VENTURA (Works partally! do not click update list on the install page!)
 - [ ] MACOS SEQUOIA
 - [ ] WINDOWS 10
 - [ ] WINDOWS 11
