@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VENV_NAME="myenv"
-REQUIREMENTS="pip flask requests python-magic"
+REQUIREMENTS="pip install flask requests python-magic"
 
 # Check if the virtual environment folder exists
 if [ -d "$VENV_NAME" ]; then
