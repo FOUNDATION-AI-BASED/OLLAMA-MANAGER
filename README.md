@@ -31,8 +31,8 @@
 ## 🛣️ Roadmap
 
 - [ ] Ui Enhancment
-- [ ] Ollama Model Pulling
-- [ ] Ollama Model Manager
+- ✅ Ollama Model Pulling
+- ✅ Ollama Model Manager
 
 
 
